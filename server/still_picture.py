@@ -5,7 +5,6 @@ import json
 import os
 from PIL import Image
 from time import gmtime, strftime
-from server.logger import Logger
 
 
 def get_configurations():
@@ -43,23 +42,20 @@ def get_camera(camera_config):
     return camera
 
 
-def save_data(frame, logger, folder):
+def save_data(frame, folder):
     """
     Save a frame and a logger entry to folder
     :param frame:
     :param logger:
     :return:
     """
-    time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    time = strftime("%Y%m%d%H%M%S", gmtime())
     frame = Image.fromarray(frame)
-    frame.save(os.path.join(folder, "{:08d}.jpg".format(index)))
-    logger.add_line("{} : {}".format(len(logger), time))
+    frame.save(os.path.join(folder, "{}.jpg".format(time)))
 
 if __name__ == '__main__':
 
     configs = get_configurations()
-    logger = Logger(os.path.join(configs["data_folder"], "log.txt"))
-    index = len(logger)
     camera = get_camera(configs["camera"])
     frame = camera.get_frame()
-    save_data(frame, logger, configs["data_folder"])
+    save_data(frame, configs["data_folder"])
