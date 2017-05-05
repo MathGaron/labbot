@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/mathieu/source/labbot")
+sys.path.append("/home/pi/labbot")
 import json
 import os
 from PIL import Image
