@@ -44,9 +44,8 @@ def get_camera(camera_config):
 
 def save_data(frame, folder):
     """
-    Save a frame and a logger entry to folder
+    Save a frame with date as name
     :param frame:
-    :param logger:
     :return:
     """
     time = strftime("%Y%m%d%H%M%S", gmtime())
