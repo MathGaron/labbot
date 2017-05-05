@@ -10,6 +10,7 @@ class Picam(CameraBase):
         self.device.hflip = True
         self.h = 480
         self.w = 640
+        self.device.awb_mode = "fluorescent"
         self.device.resolution = (self.w, self.h)
 
     def get_frame(self):
