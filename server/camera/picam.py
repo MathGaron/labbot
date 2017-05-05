@@ -1,8 +1,12 @@
 import picamera
+from server.camera.camerabase import CameraBase
 
-print("on pi?")
 
-camera = picamera.PiCamera()
-camera.vflip = True
-#camera.capture('image.jpg')
+class Picam(CameraBase):
+    def __init__(self):
+        self.device = picamera.PiCamera()
+        self.device.vflip = True
+
+    def get_frame(self):
+        pass
 

@@ -11,4 +11,4 @@ class Webcam(CameraBase):
 
     def get_frame(self):
         ret, frame = self.device.read()
-        return frame
+        return frame[:, :, ::-1]

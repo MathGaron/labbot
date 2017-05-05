@@ -2,6 +2,6 @@ import abc
 
 
 class CameraBase(abc.ABC):
-    @abstractmethod
+    @abc.abstractmethod
     def get_frame(self):
         pass
