@@ -1,3 +1,0 @@
-[submodule "externals/Arduino-EasyTransfer"]
-	path = externals/Arduino-EasyTransfer
-	url = https://github.com/MathGaron/Arduino-EasyTransfer.git
