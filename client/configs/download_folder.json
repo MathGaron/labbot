@@ -1,0 +1,7 @@
+{
+
+  "server": "labbot.duckdns.org",
+  "user": "pi",
+  "remote_path": "/home/pi/timelaps_plant_2017",
+  "host_path": "download"
+}

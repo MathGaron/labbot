@@ -4,7 +4,7 @@ sys.path.append("/home/pi/labbot")
 import json
 import os
 from PIL import Image
-from time import gmtime, strftime
+from time import localtime, strftime
 
 
 def get_configurations():
@@ -48,7 +48,7 @@ def save_data(frame, folder):
     :param frame:
     :return:
     """
-    time = strftime("%Y%m%d%H%M%S", gmtime())
+    time = strftime("%Y%m%d%H%M%S", localtime())
     frame = Image.fromarray(frame)
     frame.save(os.path.join(folder, "{}.jpg".format(time)))
 
