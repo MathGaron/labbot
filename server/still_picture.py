@@ -4,8 +4,7 @@ sys.path.append("/home/pi/labbot")
 import json
 import os
 from PIL import Image
-from time import localtime, strftime
-
+from server.indexer import Indexer
 
 def get_configurations():
     """
@@ -48,9 +47,8 @@ def save_data(frame, folder):
     :param frame:
     :return:
     """
-    time = strftime("%Y%m%d%H%M%S", localtime())
     frame = Image.fromarray(frame)
-    frame.save(os.path.join(folder, "{}.jpg".format(time)))
+    frame.save(os.path.join(folder, "{}.jpg".format(Indexer.generate_time_tag())))
 
 if __name__ == '__main__':
 

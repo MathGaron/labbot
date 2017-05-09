@@ -9,12 +9,10 @@ from slackclient import SlackClient
 import os
 import requests
 
-SLACK_TOKEN = os.environ["LVSN_SLACK_TOKEN"]
-
 
 class Slack(object):
-    def __init__(self):
-        self.sc = SlackClient(SLACK_TOKEN)
+    def __init__(self, slack_token):
+        self.sc = SlackClient(slack_token)
 
     def post_attachment(self, channel, filename, title):
         msg = self.sc.api_call(
@@ -33,14 +31,3 @@ class Slack(object):
             text=text
         )
         return msg['ok']
-
-if __name__ == '__main__':
-    filename = '~/envmap.jpg'
-
-    title = 'title'
-    channel = "#labbot"
-    text = "Hello from Python! :tada:"
-
-    slack = Slack()
-    slack.post_msg(channel=channel, text=text)
-    slack.post_attachment(channel=channel, filename=filename, title='LABBOT TEST')
