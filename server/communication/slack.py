@@ -9,23 +9,12 @@ from slackclient import SlackClient
 import os
 import requests
 
-filename = '~/envmap.jpg'
-
-title = 'title'
-channel = "#labbot"
-text = "Hello from Python! :tada:"
+SLACK_TOKEN = os.environ["LVSN_SLACK_TOKEN"]
 
 
-class LVSN_SLACK(object):
-
+class Slack(object):
     def __init__(self):
-        SLACK_CLIENT_ID = os.environ["LVSN_CLIENT_ID"]
-        SLACK_CLIENT_SECRET = os.environ["LVSN_CLIENT_SECRET"]
-        SLACK_BOT_SCOPE = 'slackbot'
-
-        SLACK_BOT_TOKEN = os.environ["LVSN_SLACK_TOKEN"]
-        slack_token = SLACK_BOT_TOKEN
-        self.sc = SlackClient(slack_token)
+        self.sc = SlackClient(SLACK_TOKEN)
 
     def post_attachment(self, channel, filename, title):
         msg = self.sc.api_call(
@@ -45,7 +34,13 @@ class LVSN_SLACK(object):
         )
         return msg['ok']
 
+if __name__ == '__main__':
+    filename = '~/envmap.jpg'
 
-slack = LVSN_SLACK()
-slack.post_msg(channel=channel, text=text)
-slack.post_attachment(channel=channel, filename=filename, title='LABBOT TEST')
+    title = 'title'
+    channel = "#labbot"
+    text = "Hello from Python! :tada:"
+
+    slack = Slack()
+    slack.post_msg(channel=channel, text=text)
+    slack.post_attachment(channel=channel, filename=filename, title='LABBOT TEST')

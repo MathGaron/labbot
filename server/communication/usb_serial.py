@@ -6,14 +6,14 @@ import time
 import threading
 
 
-class EasyTransfer:
+class UsbSerial:
     def __init__(self, send_payload_type, receive_payload_type, port='', baud=115200, async=True):
         self.send_payload_type = send_payload_type
         self.send_payload_size = struct.calcsize(self.send_payload_type)
         self.receive_payload_type = receive_payload_type
         self.receive_payload_size = struct.calcsize(self.receive_payload_type)
         self.shadow_buffer = ""
-        available_ports = EasyTransfer.list_ports()
+        available_ports = UsbSerial.list_ports()
         if len(available_ports) == 0:
             raise IOError('No available serial port found.')
         if port == '':
@@ -87,7 +87,7 @@ class EasyTransfer:
         if len(payload) != truth_size:
             print("Payload size (" + str(len(payload)) + ") != structure lenght (" + str(truth_size) + ").")
             return False
-        if truth_CS != EasyTransfer.compute_CS(payload):
+        if truth_CS != UsbSerial.compute_CS(payload):
             print("Bad checksum")
             return False
         return True
@@ -153,7 +153,7 @@ class EasyTransfer:
 if __name__ == '__main__':
     sending_struct = "if"
     receiving_stuct = "if"
-    stream = EasyTransfer(sending_struct, receiving_stuct)
+    stream = UsbSerial(sending_struct, receiving_stuct)
 
     while 1:
         print(stream.read_data())
