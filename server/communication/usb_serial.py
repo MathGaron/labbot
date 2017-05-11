@@ -148,13 +148,3 @@ class UsbSerial:
         for value in payload:
             checksum ^= value
         return checksum
-
-
-if __name__ == '__main__':
-    sending_struct = "if"
-    receiving_stuct = "if"
-    stream = UsbSerial(sending_struct, receiving_stuct)
-
-    while 1:
-        print(stream.read_data())
-        time.sleep(0.5)

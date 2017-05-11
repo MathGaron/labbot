@@ -1,16 +1,23 @@
 #include "Arduino.h"
 #include <EasyTransfer.h>
+#include "button.h"
 
 
-#ifndef LED_BUILTIN
 #define LED_BUILTIN 13
-#endif
+#define LED_MESSAGE 4
+#define BUTTON0 2
+#define BUTTON1 3
+
+int ledState = LOW;
+
+
+button_handle *g_button[2];
+
 
 EasyTransfer g_easy_transfer;
-
 typedef struct data_msg{
-  uint32_t valueint;
-  float valuefloat;
+  uint8_t button0_state;
+  uint8_t button1_state;
 }data_msg;
 
 data_msg g_data_package;
@@ -18,16 +25,51 @@ int g_count = 0;
 
 void setup()
 {
+    pinMode(LED_MESSAGE, OUTPUT);
     pinMode(LED_BUILTIN, OUTPUT);
+    g_button[0] = init_button(BUTTON0, 50);
+    g_button[1] = init_button(BUTTON1, 50);
     Serial.begin(115200);  // start Serial port
     while(!Serial);  // wait for Serial port to be opened
     g_easy_transfer.begin(details(g_data_package), &Serial);
 }
 
+unsigned long sendData_time = 0;
+
 void loop()
 {
-    g_data_package.valueint = g_count++;
-    g_data_package.valuefloat = random(0, 10);
-    g_easy_transfer.sendData();
-    delay(1000);
+    for(int i = 0; i < 2; ++i)
+    {
+        update_button(g_button[i]);
+    }
+
+    if (read_button(g_button[0]) == HIGH)
+    {
+        digitalWrite(LED_MESSAGE, HIGH);
+    }
+    if (read_button(g_button[1]) == HIGH)
+    {
+        digitalWrite(LED_BUILTIN, HIGH);
+    }
+
+    if((millis() - sendData_time) > 2000)
+    {
+        g_data_package.button0_state = LOW;
+        g_data_package.button1_state = LOW;
+        if ( millis() - get_last_up_event_time_button(g_button[0]) > 1000)
+        {
+            g_data_package.button0_state = HIGH;
+            reset_up_event_button(g_button[0]);
+            digitalWrite(LED_MESSAGE, LOW);
+        }
+        if ( millis() - get_last_up_event_time_button(g_button[1]) > 1000)
+        {
+            g_data_package.button1_state = HIGH;
+            reset_up_event_button(g_button[1]);
+            digitalWrite(LED_BUILTIN, LOW);
+        }
+        g_easy_transfer.sendData();
+        sendData_time = millis();
+    }
+    delay(20);
 }
