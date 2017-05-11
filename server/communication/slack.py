@@ -6,8 +6,6 @@ http://stackoverflow.com/questions/37283111/cannot-post-images-to-slack-channel-
 """
 
 from slackclient import SlackClient
-import os
-import requests
 
 
 class Slack(object):
