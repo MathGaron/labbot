@@ -56,13 +56,15 @@ void loop()
     {
         g_data_package.button0_state = LOW;
         g_data_package.button1_state = LOW;
-        if ( millis() - get_last_up_event_time_button(g_button[0]) > 1000)
+        unsigned long last0 = get_last_up_event_time_button(g_button[0]);
+        unsigned long last1 = get_last_up_event_time_button(g_button[1]);
+        if ( last0 != 0 && millis() - last0 > 1000)
         {
             g_data_package.button0_state = HIGH;
             reset_up_event_button(g_button[0]);
             digitalWrite(LED_MESSAGE, LOW);
         }
-        if ( millis() - get_last_up_event_time_button(g_button[1]) > 1000)
+        if ( last1 != 0 && millis() - last1 > 1000)
         {
             g_data_package.button1_state = HIGH;
             reset_up_event_button(g_button[1]);
