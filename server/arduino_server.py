@@ -17,6 +17,7 @@ if __name__ == '__main__':
 
     # Setup Slack communication
     channel = "#" + sys.argv[1]
+    print("Will send to channel : {}".format(channel))
     #todo check if channel exits
     slack = Slack(SLACK_TOKEN)
 
