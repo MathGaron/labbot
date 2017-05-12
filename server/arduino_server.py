@@ -9,13 +9,15 @@ SLACK_TOKEN = os.environ["LVSN_SLACK_TOKEN"]
 
 
 if __name__ == '__main__':
+
     # Setup Arduino communication
     sending_struct = "BB"
     receiving_stuct = "BB"
     stream = UsbSerial(sending_struct, receiving_stuct)
 
     # Setup Slack communication
-    channel = "#labbot"
+    channel = "#" + sys.argv[1]
+    #todo check if channel exits
     slack = Slack(SLACK_TOKEN)
 
     print("USB Serial server started")
