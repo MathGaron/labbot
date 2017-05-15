@@ -1,4 +1,7 @@
 import sys
+import warnings
+if sys.version_info < (3,0):
+    warnings.warn("this code can only run with python3 or higher!")
 sys.path.append("../")
 from server.communication.slack import Slack
 from server.indexer import Indexer
