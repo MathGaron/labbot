@@ -63,6 +63,8 @@ class Slack(object):
         """
         Instructions = {'do': "Do what! I am lazy! I need @mathieu 's AI.",
                         'hello': "Hello again.",
+                        'lovemathieu': "I love you all.",
+                        'loveherique': "I love you all.",
                         'nice': "You too."}
 
         help_msg = "Not sure what you mean. Use the following commands *%s*, delimited by spaces." % (' '.join(Instructions))
