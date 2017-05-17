@@ -31,6 +31,7 @@ class Slack(object):
             self.chatbot.train("chatterbot.corpus.english")
         else:
             self.chatbot = None
+        slack.start_monitor()
 
     def post_attachment(self, channel, filename, title):
         '''
