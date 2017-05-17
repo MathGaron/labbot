@@ -9,14 +9,26 @@ from slackclient import SlackClient
 from chatterbot import ChatBot
 import time
 import threading
+import json
+
+
+def get_configurations(config_file):
+    """
+    Load config json from first command line argument
+    :return:
+    """
+    with open(config_file) as data_file:
+        configs = json.load(data_file)
+    return configs
 
 
 class Slack(object):
 
-    def __init__(self, slack_token, chatbot=True):
+    def __init__(self, slack_token, config_file='configs/slack.json'):
         self.sc = SlackClient(slack_token)
         self.BOT_ID = self.get_user_id('pibot')
-
+        config = get_configurations(config_file)
+        chatbot = config['chatbot']
         # Create a new chat bot named labbot
         if chatbot:
             self.chatbot = ChatBot('labbot',
@@ -31,7 +43,7 @@ class Slack(object):
             self.chatbot.train("chatterbot.corpus.english")
         else:
             self.chatbot = None
-        slack.start_monitor()
+        self.start_monitor()
 
     def post_attachment(self, channel, filename, title):
         '''
@@ -155,8 +167,8 @@ def tester():
     import os
     SLACK_TOKEN = os.environ["LVSN_SLACK_TOKEN"]
     channel = "#labbot"
-    slack = Slack(SLACK_TOKEN)
-    slack.start_monitor()
+    slack = Slack(SLACK_TOKEN, config_file='../configs/slack.json')
+    # slack.start_monitor()
     # slack.chat()
     # slack.chat('Good morning! How are you doing?')
 
