@@ -6,15 +6,31 @@ http://stackoverflow.com/questions/37283111/cannot-post-images-to-slack-channel-
 """
 
 from slackclient import SlackClient
+from chatterbot import ChatBot
 import time
 import threading
 
 
 class Slack(object):
 
-    def __init__(self, slack_token):
+    def __init__(self, slack_token, chatbot=True):
         self.sc = SlackClient(slack_token)
         self.BOT_ID = self.get_user_id('pibot')
+
+        # Create a new chat bot named labbot
+        if chatbot:
+            self.chatbot = ChatBot('labbot',
+                                   trainer='chatterbot.trainers.ChatterBotCorpusTrainer',
+                                   storage_adapter="chatterbot.storage.JsonFileStorageAdapter",
+                                   silence_performance_warning=True,  # MongoDatabaseAdapter might be faster
+                                   logic_adapters=[
+                                       "chatterbot.logic.MathematicalEvaluation",
+                                       "chatterbot.logic.TimeLogicAdapter",
+                                       "chatterbot.logic.BestMatch"],
+                                   database="../chatbot_database.db")  # gender: AI
+            self.chatbot.train("chatterbot.corpus.english")
+        else:
+            self.chatbot = None
 
     def post_attachment(self, channel, filename, title):
         '''
@@ -55,17 +71,27 @@ class Slack(object):
             print("could not find user with the name " + name)
             return None
 
+    def chat(self, msg='who are you?'):
+        # Get a response to the input text 'How are you?'
+        if self.chatbot:
+            response = self.chatbot.get_response(msg)
+        else:
+            response = 'I do not know what you are talking about.'
+        return str(response)
+
     def handle_command(self, channel, command):
         """
         Receives commands directed at the bot and determines if they are valid commands.
-        If so, then acts on the commands. Else, return the commands list.
+        If so, then acts on the commands. Else, forward the command to the chatbot.
         Add more commands in the Instruction dict
         """
-        Instructions = {'do': "Do what! I am lazy! I need @mathieu 's AI.",
+        Instructions = {'do': "I am lazy! Ask @mathieu. :p",
                         'hello': "Hello again.",
-                        'lovemathieu': "I love you all.",
-                        'loveherique': "I love you all.",
-                        'nice': "You too."}
+                        'chatoff': 'I am pibot, give me command.',
+                        'lovemathieu': "I love you too.",
+                        'loveherique': "I love you too.",
+                        'nice': "You too.",
+                        'help': 'Get this help msg.'}
 
         help_msg = "Not sure what you mean. Use the following commands *%s*, delimited by spaces." % (' '.join(Instructions))
 
@@ -73,11 +99,16 @@ class Slack(object):
         for key, value in Instructions.items():
             cmds.append(key)
 
-        cmd_msg = [Instructions[cmd] for cmd in cmds if command.startswith(cmd)]
-        if cmd_msg:
-            response = cmd_msg[0]
+        cmd_instruction = [Instructions[cmd] for cmd in cmds if command.startswith(cmd)]
+
+        if cmd_instruction:
+            if cmd_instruction[0] == 'help':
+                response = help_msg
+            else:
+                response = cmd_instruction[0]
         else:
-            response = help_msg
+            msg = command  # msg = ' '.join(command.split(' ')[0:])  # parameters without cmd
+            response = self.chat(msg)
 
         self.post_msg(channel, response)
 
@@ -125,6 +156,9 @@ def tester():
     channel = "#labbot"
     slack = Slack(SLACK_TOKEN)
     slack.start_monitor()
+    # slack.chat()
+    # slack.chat('Good morning! How are you doing?')
+
     # slack.post_attachment(channel=channel, filename='', title=str(last_date))
 
 
