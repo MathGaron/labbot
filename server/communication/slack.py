@@ -103,8 +103,9 @@ class Slack(object):
                         'chatoff': 'I am pibot, give me command.',
                         'lovemathieu': "I love you too.",
                         'loveherique': "I love you too.",
+                        'plant': self.post_msg,  # actions
                         'nice': "You too.",
-                        'help': 'Get this help msg.'}
+                        'help': 'help'}
 
         help_msg = "Not sure what you mean. Use the following commands *%s*, delimited by spaces." % (' '.join(Instructions))
 
@@ -115,15 +116,24 @@ class Slack(object):
         cmd_instruction = [Instructions[cmd] for cmd in cmds if command.startswith(cmd)]
 
         if cmd_instruction:
-            if cmd_instruction[0] == 'help':
-                response = help_msg
+            if type(cmd_instruction[0]) != str:
+                # if the response is not simple string
+                params = ' '.join(command.split(' ')[1:])
+                response = cmd_instruction[0](channel=channel, text=params)
             else:
-                response = cmd_instruction[0]
+                # if the response is string
+                if cmd_instruction[0] == 'help':
+                    response = help_msg
+                else:
+                    response = cmd_instruction[0]
+                self.post_msg(channel, response)
+
         else:
+            # forward to chatbot
             msg = command  # msg = ' '.join(command.split(' ')[0:])  # parameters without cmd
             response = self.chat(msg)
+            self.post_msg(channel, response)
 
-        self.post_msg(channel, response)
 
     def parse_slack_output(self, slack_rtm_output):
         """
