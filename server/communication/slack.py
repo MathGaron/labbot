@@ -27,7 +27,7 @@ class Slack(object):
         self.BOT_ID = self.get_user_id('pibot')
         config = get_configurations(config_file)
         chatbot = config['chatbot']
-        #todo It should not be the Slack object that handle tasks!!!
+        # todo It should not be the Slack object that handle tasks!!!
         self.tasks = []
         # Create a new chat bot named labbot
         if chatbot:
@@ -111,11 +111,12 @@ class Slack(object):
                 except:
                     return_message = 'Command failed!'
                 break
+
         if not task_triggered:
             return_message = self.chat(msg)
 
-        self.post_msg(channel, return_message)
-
+        if return_message:
+            self.post_msg(channel, return_message)
 
     def parse_slack_output(self, slack_rtm_output):
         """
