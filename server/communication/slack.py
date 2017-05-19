@@ -1,12 +1,10 @@
-"""
-DOC
-http://www.codingtricks.biz/slack-python-client-to-send-messages/
-http://pfertyk.me/2016/11/automatically-respond-to-slack-messages-containing-specific-text/
-http://stackoverflow.com/questions/37283111/cannot-post-images-to-slack-channel-via-web-hooks-utilizing-python-requests
-"""
-
 from slackclient import SlackClient
 from chatterbot import ChatBot
+import sys
+sys.path.append("../..")
+from server.communication.tasks.test_task import TestTask
+from server.communication.tasks.help_task import HelpTask
+from server.communication.tasks.show_last_image import ShowTask
 import time
 import threading
 import json
@@ -29,6 +27,8 @@ class Slack(object):
         self.BOT_ID = self.get_user_id('pibot')
         config = get_configurations(config_file)
         chatbot = config['chatbot']
+        #todo It should not be the Slack object that handle tasks!!!
+        self.tasks = []
         # Create a new chat bot named labbot
         if chatbot:
             self.chatbot = ChatBot('labbot',
@@ -43,7 +43,10 @@ class Slack(object):
             self.chatbot.train("chatterbot.corpus.english")
         else:
             self.chatbot = None
-        self.start_monitor()
+
+    def load_tasks(self, tasks):
+        for task in tasks:
+            self.tasks.append(task)
 
     def post_attachment(self, channel, filename, title):
         '''
@@ -92,47 +95,21 @@ class Slack(object):
             response = 'I do not know what you are talking about.'
         return str(response)
 
-    def handle_command(self, channel, command):
+    def handle_command(self, channel, msg):
         """
         Receives commands directed at the bot and determines if they are valid commands.
         If so, then acts on the commands. Else, forward the command to the chatbot.
         Add more commands in the Instruction dict
         """
-        Instructions = {'do': "I am lazy! Ask @mathieu. :p",
-                        'hello': "Hello again.",
-                        'chatoff': 'I am pibot, give me command.',
-                        'lovemathieu': "I love you too.",
-                        'loveherique': "I love you too.",
-                        'plant': self.post_msg,  # actions
-                        'nice': "You too.",
-                        'help': 'help'}
+        return_message = None
+        for task in self.tasks:
+            if task.trigger(msg):
+                return_message = task.callback(self, channel)
+                break
+        if not return_message:
+            return_message = self.chat(msg)
 
-        help_msg = "Not sure what you mean. Use the following commands *%s*, delimited by spaces." % (' '.join(Instructions))
-
-        cmds = []
-        for key, value in Instructions.items():
-            cmds.append(key)
-
-        cmd_instruction = [Instructions[cmd] for cmd in cmds if command.startswith(cmd)]
-
-        if cmd_instruction:
-            if type(cmd_instruction[0]) != str:
-                # if the response is not simple string
-                params = ' '.join(command.split(' ')[1:])
-                response = cmd_instruction[0](channel=channel, text=params)
-            else:
-                # if the response is string
-                if cmd_instruction[0] == 'help':
-                    response = help_msg
-                else:
-                    response = cmd_instruction[0]
-                self.post_msg(channel, response)
-
-        else:
-            # forward to chatbot
-            msg = command  # msg = ' '.join(command.split(' ')[0:])  # parameters without cmd
-            response = self.chat(msg)
-            self.post_msg(channel, response)
+        self.post_msg(channel, return_message)
 
 
     def parse_slack_output(self, slack_rtm_output):
@@ -176,13 +153,15 @@ class Slack(object):
 def tester():
     import os
     SLACK_TOKEN = os.environ["LVSN_SLACK_TOKEN"]
-    channel = "#labbot"
     slack = Slack(SLACK_TOKEN, config_file='../configs/slack.json')
-    # slack.start_monitor()
-    # slack.chat()
-    # slack.chat('Good morning! How are you doing?')
 
-    # slack.post_attachment(channel=channel, filename='', title=str(last_date))
+    # Setup tasks
+    test_task = TestTask()
+    still_plant_task = ShowTask("plant", "/home/pi/timelaps_plant_2017")
+    help_task = HelpTask([test_task, still_plant_task])
+    slack.load_tasks([test_task, help_task, still_plant_task])
+
+    slack.start_monitor()
 
 
 if __name__ == '__main__':
