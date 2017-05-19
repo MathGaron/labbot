@@ -102,11 +102,16 @@ class Slack(object):
         Add more commands in the Instruction dict
         """
         return_message = None
+        task_triggered = False
         for task in self.tasks:
             if task.trigger(msg):
-                return_message = task.callback(self, channel)
+                task_triggered = True
+                try:
+                    return_message = task.callback(self, channel)
+                except:
+                    return_message = 'Command failed!'
                 break
-        if not return_message:
+        if not task_triggered:
             return_message = self.chat(msg)
 
         self.post_msg(channel, return_message)
