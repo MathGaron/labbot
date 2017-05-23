@@ -9,7 +9,7 @@
 #define BUTTON1 3
 
 int ledState = LOW;
-
+int moisturePin = A1;
 
 button_handle *g_button[2];
 
@@ -18,6 +18,7 @@ EasyTransfer g_easy_transfer;
 typedef struct data_msg{
   uint8_t button0_state;
   uint8_t button1_state;
+  uint16_t moisture_read;
 }data_msg;
 
 data_msg g_data_package;
@@ -32,6 +33,7 @@ void setup()
     Serial.begin(115200);  // start Serial port
     while(!Serial);  // wait for Serial port to be opened
     g_easy_transfer.begin(details(g_data_package), &Serial);
+    
 }
 
 unsigned long sendData_time = 0;
@@ -70,6 +72,10 @@ void loop()
             reset_up_event_button(g_button[1]);
             digitalWrite(LED_BUILTIN, LOW);
         }
+
+	//Read sensors
+        g_data_package.moisture_read = analogRead(moisturePin);	
+
         g_easy_transfer.sendData();
         sendData_time = millis();
     }
